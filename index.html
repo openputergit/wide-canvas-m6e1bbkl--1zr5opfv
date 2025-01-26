@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * {
+            font-family: 'Share Tech Mono', monospace;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .cyberpunk-bg {
+            background: linear-gradient(45deg, #0a0a2e, #1a1a3a);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyberpunk-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0, 255, 255, 0.1) 0px,
+                rgba(0, 255, 255, 0.1) 1px,
+                transparent 1px,
+                transparent 10px
+            );
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            animation: neonPulse 1.5s infinite alternate;
+        }
+
+        @keyframes neonPulse {
+            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            to { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff; }
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            right: 0;
+            background: #0a0a2e;
+        }
+
+        .glitch::before {
+            top: 2px;
+            color: #ff00ff;
+            animation: glitch-top 1s infinite;
+        }
+
+        .glitch::after {
+            bottom: 2px;
+            color: #00ffff;
+            animation: glitch-bottom 1.5s infinite;
+        }
+
+        @keyframes glitch-top {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px); }
+            40% { transform: translate(2px); }
+            60% { transform: translate(-1px); }
+            80% { transform: translate(1px); }
+            100% { transform: translate(0); }
+        }
+
+        .cyber-border {
+            position: relative;
+            border: 2px solid #00ffff;
+            overflow: hidden;
+        }
+
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 20%,
+                rgba(0, 255, 255, 0.8) 50%,
+                transparent 80%
+            );
+            animation: borderGlow 2s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .project-card {
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) rotateY(10deg);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body class="bg-[#0a0a2e] text-cyan-400">
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-[#0a0a2e]/90 backdrop-blur-lg border-b border-cyan-500/30">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="#" class="text-2xl font-bold neon-text">CYBER.DEV</a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="hover:text-cyan-300 transition duration-300">HOME</a>
+                    <a href="#projects" class="hover:text-cyan-300 transition duration-300">PROJECTS</a>
+                    <a href="#skills" class="hover:text-cyan-300 transition duration-300">SKILLS</a>
+                    <a href="#contact" class="hover:text-cyan-300 transition duration-300">CONTACT</a>
+                </div>
+                <button class="md:hidden" onclick="toggleMenu()">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-[#0a0a2e]/95 p-4">
+            <a href="#home" class="block py-2 hover:text-cyan-300">HOME</a>
+            <a href="#projects" class="block py-2 hover:text-cyan-300">PROJECTS</a>
+            <a href="#skills" class="block py-2 hover:text-cyan-300">SKILLS</a>
+            <a href="#contact" class="block py-2 hover:text-cyan-300">CONTACT</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center cyberpunk-bg">
+        <div class="container mx-auto px-4 py-20">
+            <div class="text-center" data-aos="zoom-in">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 glitch" data-text="CYBER DEVELOPER">CYBER DEVELOPER</h1>
+                <p class="text-xl md:text-2xl text-cyan-300 mb-8">HACKING REALITY THROUGH CODE</p>
+                <a href="#projects" class="bg-cyan-500 hover:bg-cyan-400 px-8 py-3 rounded-full transition duration-300 inline-block cyber-border">
+                    ENTER THE GRID
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-12 text-center neon-text" data-aos="fade-up">DIGITAL CREATIONS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project Cards -->
+                <div class="project-card bg-[#1a1a3a] rounded-lg overflow-hidden cyber-border" data-aos="flip-left">
+                    <img src="https://source.unsplash.com/600x400?cyberpunk" alt="Project" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">NEURAL NETWORK</h3>
+                        <p class="text-cyan-300 mb-4">AI-powered data visualization platform</p>
+                        <div class="flex space-x-2">
+                            <span class="bg-cyan-500 px-3 py-1 rounded-full text-xs">REACT</span>
+                            <span class="bg-pink-500 px-3 py-1 rounded-full text-xs">PYTHON</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more project cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-[#1a1a3a]">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-12 text-center neon-text" data-aos="fade-up">TECH ARSENAL</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div data-aos="fade-right">
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span>NEURAL INTERFACE (AI/ML)</span>
+                            <span>92%</span>
+                        </div>
+                        <div class="bg-[#0a0a2e] rounded-full h-2">
+                            <div class="bg-cyan-500 h-2 rounded-full" style="width: 92%; transition: width 1s ease-out"></div>
+                        </div>
+                    </div>
+                    <!-- Add more skills -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 cyberpunk-bg">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-12 text-center neon-text" data-aos="fade-up">ESTABLISH UPLINK</h2>
+            <div class="max-w-2xl mx-auto">
+                <form onsubmit="return handleSubmit(event)" class="space-y-6 cyber-border p-8" data-aos="fade-up">
+                    <div>
+                        <label class="block mb-2">DESIGNATION</label>
+                        <input type="text" required class="w-full px-4 py-2 rounded-lg bg-[#1a1a3a] border border-cyan-500 focus:outline-none focus:border-pink-500 transition duration-300">
+                    </div>
+                    <div>
+                        <label class="block mb-2">NEURAL MAIL</label>
+                        <input type="email" required class="w-full px-4 py-2 rounded-lg bg-[#1a1a3a] border border-cyan-500 focus:outline-none focus:border-pink-500 transition duration-300">
+                    </div>
+                    <div>
+                        <label class="block mb-2">DATA STREAM</label>
+                        <textarea required rows="4" class="w-full px-4 py-2 rounded-lg bg-[#1a1a3a] border border-cyan-500 focus:outline-none focus:border-pink-500 transition duration-300"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 py-3 rounded-lg transition duration-300">TRANSMIT</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Three.js Background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Mobile menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            alert('TRANSMISSION SUCCESSFUL. AWAITING RESPONSE.');
+            event.target.reset();
+        }
+
+        // GSAP Animations
+        gsap.from("nav", {
+            y: -100,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out"
+        });
+
+        // Responsive design handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
